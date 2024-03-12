@@ -290,6 +290,7 @@ export default {
     },
     async getCredentials() {
       const credentials = await this.$storageService.getCredentials();
+      console.log(credentials);
       this.$store.commit("auth/setCredentials", credentials);
     },
     selectEmoji(emoji) {

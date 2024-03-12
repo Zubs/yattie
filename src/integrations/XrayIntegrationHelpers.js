@@ -4,12 +4,16 @@ export default {
   saveCredentials(data) {
     let formattedData = this.formatData(data);
 
+    const credentials = {
+      xray: [formattedData],
+    };
+
     window.ipc.invoke(IPC_HANDLERS.DATABASE, {
       func: IPC_FUNCTIONS.UPDATE_CREDENTIALS,
-      data: formattedData,
+      data: credentials,
     });
 
-    return formattedData;
+    return credentials;
   },
 
   formatData(data) {

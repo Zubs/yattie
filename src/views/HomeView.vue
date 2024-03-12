@@ -98,14 +98,14 @@
               <!-- Todo: fix this -->
               <div
                 class="overlay"
-                v-if="!loggedInServices.testrail"
+                v-if="!loggedInServices.xray"
                 v-on="on"
               ></div>
             </button>
           </template>
           <span>
             {{
-              loggedInServices.testrail
+              loggedInServices.xray
                 ? $tc("caption.logged_in_xray", 1)
                 : $tc("caption.not_logged_in_xray", 1)
             }}
