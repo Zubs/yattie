@@ -90,11 +90,12 @@
           <template v-slot:activator="{ on, attrs }">
             <button class="social-btn">
               <img
-                :src="require('../assets/icon/testrail.svg')"
-                width="60"
+                :src="require('../assets/icon/xray-logo.png')"
+                width="25"
                 v-bind="attrs"
                 v-on="on"
               />
+              <!-- Todo: fix this -->
               <div
                 class="overlay"
                 v-if="!loggedInServices.testrail"
@@ -105,8 +106,8 @@
           <span>
             {{
               loggedInServices.testrail
-                ? $tc("caption.logged_in_testrail", 1)
-                : $tc("caption.not_logged_in_testrail", 1)
+                ? $tc("caption.logged_in_xray", 1)
+                : $tc("caption.not_logged_in_xray", 1)
             }}
           </span>
         </v-tooltip>

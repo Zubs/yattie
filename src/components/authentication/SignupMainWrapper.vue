@@ -35,7 +35,7 @@
             <div class="btn-text">{{ $tc("caption.signup_jira", 1) }}</div>
           </v-btn>
           <v-btn class="mb-4 outline-btn testrail" block outlined color="white">
-            <img :src="require('../../assets/icon/testrail.png')" />
+            <img :src="require('../../assets/icon/xray-logo.png')" />
             <div class="btn-text">{{ $tc("caption.signup_testrail", 1) }}</div>
           </v-btn>
           <v-btn class="mb-4 outline-btn qtest" block outlined color="white">

@@ -9,7 +9,7 @@
         class="subtitle-1 signup-title text-center"
         :style="{ color: currentTheme.secondary }"
       >
-        <span>{{ $tc("caption.signin_testrail", 1) }}</span>
+        <span>{{ $tc("caption.signin_xray", 1) }}</span>
       </div>
     </div>
     <div class="content mt-2">
@@ -17,55 +17,42 @@
         <v-row>
           <v-col cols="12" class="d-flex justify-center pa-0">
             <img
-              :src="require('../../assets/icon/testrail.png')"
-              alt="testrail"
+              :src="require('../../assets/icon/xray-logo.png')"
+              alt="xray"
               width="60"
             />
           </v-col>
           <v-col cols="12" class="pa-0">
             <div class="subtitle-2 label-text">
-              {{ $tc("caption.user_name", 1) }}
+              {{ $tc("caption.client_id", 1) }}
             </div>
             <div class="timer-box-wrapper">
               <v-text-field
-                placeholder="test@example.com"
+                :append-icon="showClientId ? 'mdi-eye' : 'mdi-eye-off'"
                 outlined
                 dense
-                v-model="username"
+                :type="showClientId ? 'text' : 'password'"
+                v-model="client_id"
                 required
-                :rules="rules.username"
+                :rules="rules.client_id"
+                @click:append="showClientId = !showClientId"
               />
             </div>
           </v-col>
           <v-col cols="12" class="pa-0">
             <div class="subtitle-2 label-text">
-              {{ $tc("caption.api_key", 1) }}
+              {{ $tc("caption.client_secret", 1) }}
             </div>
             <div class="timer-box-wrapper">
               <v-text-field
-                :append-icon="showEye ? 'mdi-eye' : 'mdi-eye-off'"
+                :append-icon="showClientSecret ? 'mdi-eye' : 'mdi-eye-off'"
                 outlined
                 dense
-                :type="showEye ? 'text' : 'password'"
-                v-model="apiKey"
+                :type="showClientSecret ? 'text' : 'password'"
+                v-model="client_secret"
                 required
-                :rules="rules.apiKey"
-                @click:append="showEye = !showEye"
-              />
-            </div>
-          </v-col>
-          <v-col cols="12" class="pa-0">
-            <div class="subtitle-2 label-text">
-              {{ $tc("caption.testrail_instance_url", 1) }}
-            </div>
-            <div class="timer-box-wrapper">
-              <v-text-field
-                outlined
-                dense
-                v-model="instanceUrl"
-                placeholder="mydomain.testrail.io"
-                required
-                :rules="rules.instanceUrl"
+                :rules="rules.client_secret"
+                @click:append="showClientSecret = !showClientSecret"
               />
             </div>
           </v-col>
@@ -100,12 +87,14 @@
     </v-snackbar>
   </v-container>
 </template>
+
 <script>
 import axios from "axios";
 import dayjs from "dayjs";
-import testrailIntegrationHelper from "../../integrations/TestRailIntegrationHelpers";
+import xrayIntegrationHelper from "../../integrations/XrayIntegrationHelpers";
+
 export default {
-  name: "SigninTestRailWrapper",
+  name: "SigninXrayWrapper",
   props: {
     configItem: {
       type: Object,
@@ -136,33 +125,23 @@ export default {
       config: this.configItem,
       credentials: this.credentialItems,
       previousRoute: this.prevRoute,
-      username: "",
-      apiKey: "",
-      instanceUrl: "",
-      showEye: false,
+      showClientSecret: false,
+      showClientId: false,
+      client_id: "",
+      client_secret: "",
       loading: false,
       valid: true,
       rules: {
-        username: [
+        client_secret: [
           (v) =>
             !!v ||
-            this.$i18n.t("message.user_name") +
-              this.$i18n.t("message.is_required"),
-          (v) =>
-            !v ||
-            /^\w+([.-]?\w+)*@\w+([.-]?\w+)*(\.\w{2,3})+$/.test(v) ||
-            "Username must be valid",
-        ],
-        apiKey: [
-          (v) =>
-            !!v ||
-            this.$i18n.t("message.api_key") +
+            this.$i18n.t("message.client_secret") +
               this.$i18n.t("message.is_required"),
         ],
-        instanceUrl: [
+        client_id: [
           (v) =>
             !!v ||
-            this.$i18n.t("message.instance_url") +
+            this.$i18n.t("message.client_id") +
               this.$i18n.t("message.is_required"),
         ],
       },
@@ -189,51 +168,42 @@ export default {
         this.$router.back();
       }
     },
+
     async signIn() {
       const isValid = this.$refs.form.validate();
+
       if (isValid) {
         this.postLogin({
-          testrail: {
-            type: "basic",
-            accessToken: Buffer.from(
-              this.username + ":" + this.apiKey
-            ).toString("base64"),
-            url: this.instanceUrl,
+          xray: {
+            client_id: this.client_id,
+            client_secret: this.client_secret,
           },
         });
       }
     },
-    async postLogin(data) {
-      console.log(data); //TODO - Abstract this to helper.
 
+    async postLogin(data) {
       let header = {
         headers: {
-          Authorization: `Basic ${data.testrail.accessToken}`,
-          Accept: "application/json",
+          "Content-Type": "application/json",
         },
       };
 
       await axios
-        .get(
-          `https://${data.testrail.url}/index.php?/api/v2/get_current_user`,
+        .post(
+          `https://xray.cloud.getxray.app/api/v2/authenticate`,
+          data.xray,
           header
         )
         .then((user) => {
           const date = dayjs().format("YYYY-MM-DD HH:mm:ss");
-          const testrailData = {
-            ...data.testrail,
+          const xrayData = {
+            ...data.xray,
+            auth_token: user.data,
             loggedInAt: date,
-            profile: {
-              account_id: user.data.id,
-              email: user.data.email,
-              name: user.data.name,
-            }, //TODO - We format this here and in the integration helper. We
-          }; //         need to simplify across all integrations.
+          };
 
-          this.credentials = testrailIntegrationHelper.saveCredentials(
-            this.credentials,
-            testrailData
-          );
+          this.credentials = xrayIntegrationHelper.saveCredentials(xrayData);
 
           setTimeout(() => {
             this.loading = false;
@@ -251,6 +221,7 @@ export default {
   },
 };
 </script>
+
 <style scoped>
 .wrapper {
   display: flex;
@@ -260,11 +231,13 @@ export default {
   overflow-y: auto;
   max-width: 450px;
 }
+
 .header {
   display: flex;
   align-items: center;
   padding: 12px;
 }
+
 .header .back-btn {
   flex-grow: 0;
   display: flex;
@@ -274,6 +247,7 @@ export default {
   font-weight: 500;
   line-height: 20px;
 }
+
 .header .signup-title {
   flex-grow: 1;
   font-style: normal;
@@ -283,9 +257,11 @@ export default {
   color: #111827;
   text-align: center;
 }
+
 .header .signup-title span {
   margin-left: -50px;
 }
+
 .content {
   background-color: #fff;
   border-radius: 8px;

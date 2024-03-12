@@ -7,10 +7,10 @@
         </p>
         <a
           class="jira-link"
-          @click="signinTestRail"
+          @click="signinXray"
           :style="{ color: currentTheme.secondary }"
         >
-          {{ $t("message.connect_to_testrail") }}
+          {{ $t("message.connect_to_xray") }}
         </a>
         <p></p>
         <a

@@ -52,11 +52,14 @@
             block
             outlined
             color="white"
-            @click="signinTestRail"
+            @click="signinXray"
           >
-            <img :src="require('../../assets/icon/testrail.png')" />
+            <img
+              :src="require('../../assets/icon/xray-logo.png')"
+              :width="12"
+            />
             <div class="btn-text" :style="{ color: currentTheme.secondary }">
-              {{ $tc("caption.signin_testrail", 1) }}
+              {{ $tc("caption.signin_xray", 1) }}
             </div>
           </v-btn>
           <!--<v-btn class="mb-4 outline-btn" block outlined color="white">
@@ -175,8 +178,8 @@ export default {
     signinJira() {
       this.$router.push({ path: "/authentication/signinJira" });
     },
-    signinTestRail() {
-      this.$router.push({ path: "/authentication/signinTestRail" });
+    signinXray() {
+      this.$router.push({ path: "/authentication/signinXray" });
     },
   },
 };
